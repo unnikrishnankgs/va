@@ -1,0 +1,51 @@
+{
+  "node": true,
+  "esnext": true,
+  "bitwise": true,
+  "camelcase": true,
+  // "curly": true,
+  "eqeqeq": false,
+  "eqnull": true,
+  "immed": true,
+  "indent": 4,
+  "latedef": true,
+  "newcap": false,
+  "noarg": true,
+  "predef": [
+    // browser
+    "document",
+    "window",
+    "navigator",
+    "Headers",
+    "fetch",
+
+    // plugins
+    "$",
+    "_",
+    "Raphael",
+
+    // app
+    "Annotation",
+    "Bounds",
+    "CreationRect",
+    "DataSources",
+    "Misc",
+    "Player",
+
+    // views
+    "Keyframebar",
+    "PlayerView",
+    "Rect",
+    "VideoFramePlayer",
+    "AbstractFramePlayer",
+    "ImageFramePlayer"
+  ],
+  // "quotmark": "double",
+  "regexp": true,
+  "undef": true,
+  "unused": true,
+  "strict": true,
+  "trailing": true,
+  "smarttabs": true,
+  "white": true
+}
