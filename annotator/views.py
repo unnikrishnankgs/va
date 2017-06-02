@@ -18,6 +18,7 @@ import urllib.parse
 import markdown
 import sys
 import mturk.utils
+import sqlite3
 from mturk.queries import get_active_video_turk_task
 from .models import *
 from .services import *
@@ -220,6 +221,31 @@ class AnnotationView(View):
             annotation_py_final = data['annotation'];
         video.annotation = json.dumps(annotation_py_final)
         video.save()
+
+        #------ DataSet dump code starts here
+        conn=sqlite3.connect('db.sqlite3')
+        conn.row_factory=sqlite3.Row
+        c=conn.cursor()
+        #TODO add userinfo in file_name feature after grouping feature addition
+        #command = 'SELECT annotation FROM annotator_video ' + 'where id=' + i; 
+        c.execute('SELECT annotation FROM annotator_video')
+        res=c.fetchall()
+        rows=[dict(re) for re in res]
+        base = "{'annotation': ''}";
+        for i in range(0, rows.__len__()):
+            r = str(rows[i]);
+            #print("lengths", r.__len__(), base.__len__());
+            if r.__len__() > base.__len__():
+                print("r is ", r);
+                file_name = "dataset/" + "video_" + str(i) + "annotation.json";
+                #print(file_name);
+                f = open(file_name, 'w');
+                f.write(r);
+                f.close();
+        rows_json=json.dumps(rows)
+        rj=json.loads(rows_json)
+        #print("all annotations:{", rj, "}")
+        #------- ends here
 
         hit_id = data.get('hitId', None)
         if hit_id != None:
