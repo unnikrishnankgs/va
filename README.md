@@ -1,5 +1,5 @@
-BeaverDam
-=========
+VA (Improved Video Annotation Tool forked from BeaverDam)
+=========================================================
 
 Video annotation tool for deep learning training labels
 
@@ -101,3 +101,12 @@ See [annotator/static/README.md](annotator/static) for more info on frontend arc
 ## Support
 
 For help setting up BeaverDam for your application/company, please contact me or leave an issue.
+
+## Additional Features
+
+1) Added user-private annotation capability where the annotations made by individual users are visible to them only.
+Current model had annotations clubbed with the video; but we are moving away from this design and is creating user-groups for every video
+and annotations shall now be retrieved via a function of (video-id, group-id and user-id) instead of just video-id.
+2) Tested and made minor modifications to support image-list where an annotation task can be on a list of JPEG or any image format files
+instead of video.
+3) Dataset shall now be dumped into a file per video (design and implementation in progress)
