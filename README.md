@@ -102,7 +102,7 @@ See [annotator/static/README.md](annotator/static) for more info on frontend arc
 
 For help setting up BeaverDam for your application/company, please contact me or leave an issue.
 
-## Additional Features
+## Additional Features From VA Team at SJSU
 
 1) Added user-private annotation capability where the annotations made by individual users are visible to them only.
 Current model had annotations clubbed with the video; but we are moving away from this design and is creating user-groups for every video
