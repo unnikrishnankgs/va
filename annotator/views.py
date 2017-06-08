@@ -29,6 +29,7 @@ import ast
 from django.contrib import auth
 #from django.contrib.auth import models.User
 from django.contrib.auth.models import User
+from django.db.models import Max
 
 logger = logging.getLogger()
 
@@ -181,7 +182,6 @@ def video(request, video_id):
 
 class AnnotationView(View):
 
-    user_info = None
     def get(self, request, video_id):
         video = Video.objects.get(id=video_id)
         print("annotation is", video.annotation);
@@ -199,28 +199,32 @@ class AnnotationView(View):
             raise Http404('No user with name "{}"'.format(request.user))
 
         print("annotation is ", json.dumps(data['annotation']));
-        annotation = data['annotation'];
-        for annotation_item in annotation:
-            if annotation_item['user_info']['user_id'] == -1:
-                print("invalid user id")
+        #Note: the design is such that data['annotation'] will be annotations from user-id == cuser.id
+        data_annotation_final = list(data['annotation']); #make a copy of data['annotation']
+
         # we need to understand who drive this data
         # delete all annotation from this user in video.annotation
         # and take in the new annotation dataset on his behalf
         print(video.annotation);
         if video.annotation:
-            annotation_py = json.loads(video.annotation);
-            annotation_py_final = json.loads(video.annotation);
+            annotation_py = list(json.loads(video.annotation));
+            annotation_py_final = list(json.loads(video.annotation));
             for annotation_itemm in annotation_py:
-                print("annotation_itemm is ", annotation_itemm, "user id is ", cuser.id, " ", annotation_itemm['user_info']['user_id']);
-                if annotation_itemm['user_info'] and int(annotation_itemm['user_info']['user_id']) == int(cuser.id):
+                print("annotation_itemm is ", annotation_itemm, "user id is ", cuser.id);
+                if 'user_info' in annotation_itemm and annotation_itemm['user_info'] and int(annotation_itemm['user_info']['user_id']) == int(cuser.id):
                     print("same user id", cuser.id);
                     annotation_py_final.remove(annotation_itemm);
             print("annotation_py now ", annotation_py_final);
-            annotation_py_final = annotation_py_final + data['annotation']; #data['annotation'] will have only annotations from current user now
-        else:
-            annotation_py_final = data['annotation'];
-        video.annotation = json.dumps(annotation_py_final)
-        video.save()
+            if data_annotation_final:
+                annotation_py_final = annotation_py_final + data_annotation_final; #data['annotation'] will have only annotations from current user now
+        elif data_annotation_final:
+            annotation_py_final = data_annotation_final;
+        if annotation_py_final:
+            video.annotation = json.dumps(annotation_py_final)
+            video.save()
+
+        max_user_id = User.objects.all().aggregate(Max('id'))
+        print("max_user_id is ", max_user_id['id__max'])
 
         #------ DataSet dump code starts here
         conn=sqlite3.connect('db.sqlite3')
@@ -233,17 +237,22 @@ class AnnotationView(View):
         rows=[dict(re) for re in res]
         base = "{'annotation': ''}";
         for i in range(0, rows.__len__()):
-            r = str(rows[i]);
+            r = str(rows[i]['annotation']);
             #print("lengths", r.__len__(), base.__len__());
             if r.__len__() > base.__len__():
                 print("r is ", r);
-                file_name = "dataset/" + "video_" + str(i) + "annotation.json";
-                #print(file_name);
-                f = open(file_name, 'w');
-                f.write(r);
-                f.close();
-        rows_json=json.dumps(rows)
-        rj=json.loads(rows_json)
+                if 'id__max' in max_user_id and max_user_id['id__max']:
+                    for j in range(1, max_user_id['id__max'] + 1):
+                        file_name = "dataset/" + "video_" + str(i) + "_" + str(j) + ".json";
+                        print(file_name);
+                        current_user_annotation = getUserAnnotation(j, r)
+                        if current_user_annotation:
+                            print("current_user_annotation=", current_user_annotation);
+                            f = open(file_name, 'w');
+                            f.write(current_user_annotation);
+                            f.close();
+        #rows_json=json.dumps(rows)
+        #rj=json.loads(rows_json)
         #print("all annotations:{", rj, "}")
         #------- ends here
 
@@ -293,3 +302,56 @@ class ReceiveCommand(View):
             response = HttpResponse(status=500)
             response['error-message'] = str(e)
             return response
+from django.utils.encoding import smart_str
+
+def download_annotation(request, video_id):
+    import mimetypes
+    import os.path
+    mimetypes.init()
+    print("request for download", request.user);
+    try:
+        cuser = User.objects.get(username=request.user);
+        print("user is here ", cuser.id);
+    except User.DoesNotExist:
+        raise Http404('No user with name "{}"'.format(request.user))
+
+    try:
+        file_path = settings.BASE_DIR + '/' + 'dataset/video_' + video_id + '_' + str(cuser.id) + '.json';
+ 
+        print("file_path:", file_path)
+        filesock = open(file_path, 'r')
+        file_name = os.path.basename(file_path)
+        file_size = os.path.getsize(file_path)
+        mime_type_guess = mimetypes.guess_type(file_name)
+        print("mime", mime_type_guess, "file_size", file_size, "file_name", file_name);
+        print(mime_type_guess)
+        content = filesock.read()
+        #print("content is ", content)
+        if mime_type_guess is not None:
+            response = HttpResponse(content, content_type=mime_type_guess[0])
+        #response = HttpResponse(filesock, content_type='application/force-download')
+        response['Content-Disposition'] = 'attachment; filename="' + file_name + '"'
+        response['Content-Length'] = file_size;
+        #response['X-Sendfile'] = smart_str(file_path)        
+        print(response['Content-Disposition']);
+    except IOError:
+        response = HttpResponseNotFound()
+    print("response is", response)
+    filesock.close()
+    return response
+
+def getUserAnnotation(user_id, annotation):
+    #print("input annotation is ", annotation)
+    if annotation:
+        annotation_py = list(json.loads(annotation));
+        annotation_py_final = list(json.loads(annotation));
+        for annotation_itemm in annotation_py:
+            if 'user_info' in annotation_itemm and annotation_itemm['user_info']:
+                if int(annotation_itemm['user_info']['user_id']) != int(user_id):
+                    annotation_py_final.remove(annotation_itemm);
+            else:
+                annotation_py_final.remove(annotation_itemm);
+        #print("annotation_py now ", annotation_py_final);
+        if annotation_py_final:
+            return json.dumps(annotation_py_final)
+    return None

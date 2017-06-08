@@ -73,7 +73,7 @@ class Player {
             //window.alert(annotations.length);
             for(var i = 0; i < annotations.length; i++) {
                 var annotation_item = annotations[i];
-                if(annotation_item['user_info']['user_id'] == this.current_user) {
+                if(annotation_item['user_info'] && (annotation_item['user_info']['user_id'] == this.current_user)) {
                     //window.alert("matched current_user" + this.current_user);
                 }
                 else {
@@ -166,6 +166,7 @@ class Player {
 
         // Submitting
         $('#submit-btn').click(this.submitAnnotations.bind(this));
+        $('#download-btn').click(this.requestDownload.bind(this));
 
         $('#btn-show-accept').click(this.showAcceptDialog.bind(this));
         $('#btn-show-reject').click(this.showRejectDialog.bind(this));
@@ -301,6 +302,32 @@ class Player {
             if (!window.hitId)
                 this.showModal("Save", "Save Successful");
         });
+    }
+
+    requestDownload(e) {
+    /**
+        return fetch(`/download/${this.videoId}/`, {
+                credentials: 'same-origin',
+            }).then((response) =>{
+                window.location = (response['Content-Disposition']);
+            });
+            **/
+
+        /**
+        var xhttp = new XMLHttpRequest();
+        var dwld = `/download/${this.videoId}/`;
+        xhttp.open("GET", dwld, true);
+        xhttp.send();
+        **/
+
+        var anchor = document.createElement('a');
+        //var dwld = (document.baseURI).slice(0, document.baseURI.indexOf("video"));// + `download/${this.videoId}/`;
+        var file = `/download/${this.videoId}/`;
+        anchor.href = document.location.origin + file;
+        anchor.target = '_blank';
+        anchor.download = "";
+        anchor.click();
+        
     }
 
     showModal(title, message) {
