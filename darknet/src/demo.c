@@ -16,7 +16,7 @@
 //#define ENABLE_VIDEO_FILE_READ_AT_TAR_FPS
 //#define DISPLAY_RESULS
 
-#define DEBUG
+//#define DEBUG
 #define VERBOSE
 #include "debug.h"
 
@@ -44,10 +44,11 @@ typedef struct
     tfnRaiseAnnCb pfnRaiseAnnCb;
     int nVideoId;
     int isVideo;
+    int nFrameId;
 }tDetectorModel;
 /** } ISVA */
 
-static tDetectorModel* pDetectorModel;
+static tDetectorModel* pDetectorModel = NULL;
 
 #ifdef OPENCV
 
@@ -111,7 +112,7 @@ void init_globals()
     demo_delay = 0;
     demo_frame = 3;
     demo_detections = 0;
-    predictions = NULL;
+    //predictions = NULL;
     demo_index = 0;
     demo_done = 0;
     last_avg2 = NULL;
@@ -141,10 +142,12 @@ void evaluate_detections(image im, int num, float thresh, box *boxes, float **pr
     int i;
     tAnnInfo annInfo;
 
+    if(!pDetectorModel)
+        return;
+
     for(i = 0; i < num; ++i){
         int class_ = max_index(probs[i], classes);
         float prob = probs[i][class_];
-        LOGD("%s: %.0f%%\n", names[class_], prob*100);
         if(prob > thresh){
 
             int width = im.h * .006;
@@ -198,13 +201,17 @@ void evaluate_detections(image im, int num, float thresh, box *boxes, float **pr
             annInfo.h = (int)(bot - top);
             annInfo.pcClassName = (char*)malloc(strlen(names[class_]) + 1);
             strcpy(annInfo.pcClassName, names[class_]);
-            annInfo.fCurrentFrameTimeStamp = buff_ts[(buff_index+2)%3];
+            if(pDetectorModel->isVideo)
+                annInfo.fCurrentFrameTimeStamp = buff_ts[(buff_index+2)%3];
+            else
+                annInfo.fCurrentFrameTimeStamp = pDetectorModel->nFrameId * 1000;
             annInfo.nVideoId = pDetectorModel->nVideoId;
             annInfo.prob = prob;
             LOGD("hello..");
             LOGV("annInfo x=%d y=%d w=%d h=%d pcClassName=%s\n",
                 annInfo.x, annInfo.y, annInfo.w, annInfo.h, annInfo.pcClassName);
-            pDetectorModel->pfnRaiseAnnCb(annInfo);
+            if(pDetectorModel && pDetectorModel->pfnRaiseAnnCb)
+                pDetectorModel->pfnRaiseAnnCb(annInfo);
         }
     }
 }
@@ -216,6 +223,7 @@ void *detect_in_thread(void *ptr)
     float nms = .4;
 
     layer l = net.layers[net.n-1];
+    LOGD("buff_index=%d next=%d\n", buff_index, (buff_index+2)%3);
     float *X = buff_letter[(buff_index+2)%3].data;
     float *prediction = network_predict(net, X);
 
@@ -263,6 +271,7 @@ void *fetch_in_thread(void *ptr)
     buff_ts[buff_index] = cvGetCaptureProperty(cap, CV_CAP_PROP_POS_MSEC);
     status = fill_image_from_stream(cap, buff[buff_index]);
     letterbox_image_into(buff[buff_index], net.w, net.h, buff_letter[buff_index]);
+    LOGD("status = %d\n", status);
     if(status == 0) demo_done = 1;
     return 0;
 }
@@ -308,13 +317,13 @@ void *detect_loop(void *ptr)
     }
 }
 
+int initOnce =0;
 void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const char *filename, char **names, int classes, int delay, char *prefix, int avg_frames, float hier, int w, int h, int frames, int fullscreen)
 {
     int res = 0;
 
     demo_delay = delay;
     demo_frame = avg_frames;
-    predictions = (float**)calloc(demo_frame, sizeof(float*));
     image **alphabet = NULL;
 #ifdef DISPLAY_RESULS
     alphabet = load_alphabet();
@@ -326,11 +335,16 @@ void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const ch
     demo_hier = hier;
     LOGD("Demo\n");
     LOGD("classes=%d delay=%d avg_frames=%d hier=%f w=%d h=%d frames=%d fullscreen=%d\n", classes, delay, avg_frames, hier, w, h, frames, fullscreen);
+    if(!initOnce)
+    {
+    predictions = (float**)calloc(demo_frame, sizeof(float*));
     net = parse_network_cfg(cfgfile);
     if(weightfile){
         load_weights(&net, weightfile);
     }
     set_batch_network(&net, 1);
+    initOnce = 1;
+    }
     pthread_t detect_thread;
     pthread_t fetch_thread;
 
@@ -457,6 +471,9 @@ void demo(char *cfgfile, char *weightfile, float thresh, int cam_index, const ch
     }
     LOGD("DEBUGME\n");
     //cvReleaseCapture(cap);
+    free_image(buff[0]);
+    free_image(buff[1]);
+    free_image(buff[2]);
     LOGD("DEBUGME\n");
     cap = NULL;
 }
@@ -531,7 +548,7 @@ int run_detector_model(tDetectorModel* apDetectorModel)
     {
         pDetectorModel = apDetectorModel;
         LOGD("isVideo=%d\n", apDetectorModel->isVideo);
-        if(apDetectorModel->isVideo)
+        if(1)//apDetectorModel->isVideo)
         {
             LOGD("in %p\n", apDetectorModel);
             LOGD("demo start %s\n", apDetectorModel->pcDataCfg);
@@ -546,7 +563,7 @@ int run_detector_model(tDetectorModel* apDetectorModel)
             LOGD("Detector Model cb is %p\n", pDetectorModel->pfnRaiseAnnCb);
             demo(apDetectorModel->pcCfg, apDetectorModel->pcWeights, 0.24/**< apDetectorModel->fThresh */, 
                 0/**< cam_index */, apDetectorModel->pcFileName, names, classes, 0 /**< frame_skip */, 
-                NULL, 3, demo_hier, 0 /**< w */, 0 /**< h */, 0 /**< 0 */, 0 /**< fullscreen */
+                NULL, 1, demo_hier, 0 /**< w */, 0 /**< h */, 0 /**< 0 */, 0 /**< fullscreen */
                 );
         }
         else
