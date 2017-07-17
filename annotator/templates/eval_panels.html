@@ -7,6 +7,46 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <script>
+    video_data = {{ video_data|safe }};
+    imageList = {{image_list|safe}};
+    current_user = '{{ current_user|safe }}';
+    mturk = false;
+    hitId = 0;
+    workerId = 0;
+    assignmentId = '0';
+    helpEmbedded = false;
+  </script>
+  <script src="/static/vendor/randomColor/randomColor.js"></script>
+    <script src="/static/vendor/lodash/lodash.js"></script>
+  <script src="/static/vendor/raphael/raphael.min.js"></script>
+  <script src="/static/vendor/imgplay/jquery.imgplay.min.js"></script>
+  <script type="text/javascript" src="/static/views/framePlayers.js"></script>
+  <script type="text/javascript" src="/static/bounds.js"></script>
+  <script type="text/javascript" src="/static/datasources.js"></script>
+  <script type="text/javascript" src="/static/misc.js"></script>
+  <script type="text/javascript" src="/static/player.js"></script>
+  <script type="text/javascript" src="/static/annotation.js"></script>
+  <script type="text/javascript" src="/static/views/keyframebar.js"></script>
+  <script type="text/javascript" src="/static/views/player.js"></script>
+  <script type="text/javascript" src="/static/views/rect.js"></script>
+  <script>
+  jQuery(document).ready(function() {
+  	window.p = new Player({
+        $container: $("#player1"),
+        videoSrc: window.video.location,
+        videoId: window.video.id,
+        videoStart: window.video.start_time,
+        videoEnd: window.video.end_time,
+        isImageSequence: window.video.is_image_sequence,
+        turkMetadata: window.video.turk_task,
+        current_user: window.current_user,
+    });
+  });
+  </script>
+  <link href="//vjs.zencdn.net/5.19/video-js.min.css" rel="stylesheet">
+<script src="//vjs.zencdn.net/5.19/video.min.js"></script>
 </head>
 <body>
  
@@ -22,12 +62,23 @@
     <div class="panel panel-warning col-md-4">
       <div class="panel-heading">Model1</div>
       <div class="panel-body">
-
+      	<div class="  panel panel-default panel-space player-container" id="player1">
 	      <div class="player-screen">
-	    
+	    	{% if image_list %}
+		      <div class="player-video">
+		        {% for image in image_list %}
+		          {% if forloop.counter0 < 25 %}
+		            <img src="{{image_list_path}}/{{image}}" />
+		          {% else %}
+		            <img data-src="{{image_list_path}}/{{image}}" />
+		          {% endif %}
+		        {% endfor %}
+		      </div>
+		    {% else %}
 	      <div class="player-video-container">
-		<video class="player-video" src="http://localhost:5000/static/res/videos/1080p_WALSH_ST_000.mp4" style="height: 100%; width: 100%;"></video>
+			<video class="player-video"></video>
 	      </div>
+	      {% endif %}
 	    <div class="player-paper"></div>
 	    <div class="player-loader">
 	      <div class="bounce1"></div>
@@ -60,6 +111,7 @@
 	      </div>
 	    </div>
 	  </div>
+	  </div>
 	<h4>AP Graph1</h4>
 	<div class="well jumbotron">graph1</div>
 
@@ -73,10 +125,21 @@
       <div class="panel-body">
 
 	<div class="player-screen">
-	    
-	      <div class="player-video-container">
-		<video class="player-video" src="http://localhost:5000/static/res/videos/1080p_WALSH_ST_000.mp4" style="height: 100%; width: 100%;"></video>
+	    	{% if image_list %}
+		      <div class="player-video">
+		        {% for image in image_list %}
+		          {% if forloop.counter0 < 25 %}
+		            <img src="{{image_list_path}}/{{image}}" />
+		          {% else %}
+		            <img data-src="{{image_list_path}}/{{image}}" />
+		          {% endif %}
+		        {% endfor %}
+		      </div>
+		    {% else %}
+	      <div class="player-video-container" >
+			<video class="player-video"></video>
 	      </div>
+	      {% endif %}
 	    <div class="player-paper"></div>
 	    <div class="player-loader">
 	      <div class="bounce1"></div>
@@ -122,10 +185,21 @@
       <div class="panel-body">
 
 	<div class="player-screen">
-	    
+	    	{% if image_list %}
+		      <div class="player-video">
+		        {% for image in image_list %}
+		          {% if forloop.counter0 < 25 %}
+		            <img src="{{image_list_path}}/{{image}}" />
+		          {% else %}
+		            <img data-src="{{image_list_path}}/{{image}}" />
+		          {% endif %}
+		        {% endfor %}
+		      </div>
+		    {% else %}
 	      <div class="player-video-container">
-                <video class="player-video" src="http://localhost:5000/static/res/videos/1080p_WALSH_ST_000.mp4" style="height: 100%; width: 100%;"></video>
+			<video class="player-video"></video>
 	      </div>
+	      {% endif %}
 	    <div class="player-paper"></div>
 	    <div class="player-loader">
 	      <div class="bounce1"></div>
