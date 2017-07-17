@@ -387,10 +387,9 @@ class DETECTORMODEL(Structure):
                 ("fThresh", c_double),
                 ("pfnRaiseAnnCb", (RAISEANNFUNC)),
                 ("nVideoId", c_int),
-                ("isVideo", c_int)
+                ("isVideo", c_int),
+                ("nFrameId", c_int),
                ]
-
-lib = CDLL("/home/unnikrishnan/work/darknet/libdarknet.so", RTLD_GLOBAL)
 
 objects_raised = []
 
@@ -409,6 +408,12 @@ def raiseAnn(annInfo):
         )
     an_object = {}
     an_object['type'] = (annInfo.pcClassName).decode('utf-8')
+    print("label " + an_object['type'])
+    try:
+        label = Label.objects.get(name__iexact=an_object['type'])
+    except:
+        print("unknown label " + an_object['type'])
+        return 0
     an_object['keyframes'] = []
     box = {}
     box['bbID'] = -1;
@@ -420,7 +425,11 @@ def raiseAnn(annInfo):
     box['h'] = annInfo.h
     box['frame'] = annInfo.fCurrentFrameTimeStamp / 1000
     an_object['keyframes'].append(box)
-    an_object['color'] = "#f28a9d"
+    if(label):
+        color = label.color
+    else:
+        color = "#f28a9d";
+    an_object['color'] = color
     user_info = {}
     user_info['user_id'] = "2"
     an_object['user_info'] = user_info
@@ -429,7 +438,8 @@ def raiseAnn(annInfo):
 
 
 
-def run_darknet_model(request, video_id, path, isVideo):
+def run_darknet_model(request, video_id, path, isVideo, frameID):
+    lib = CDLL("/home/unnikrishnan/work/darknet/libdarknet.so", RTLD_LOCAL)
     import mimetypes
     import os.path
     mimetypes.init()
@@ -457,7 +467,8 @@ def run_darknet_model(request, video_id, path, isVideo):
         1, 
         0.24, 
         RAISEANNFUNC(raiseAnn), int(video_id),
-        1 if isVideo == True else 0);
+        1 if isVideo == True else 0,
+        frameID);
     detectorModel1 = DETECTORMODEL("/home/unnikrishnan/work/darknet/cfg/yolo.cfg".encode('utf-8'), "/home/unnikrishnan/work/darknet/yolo.weights".encode('utf-8'), 
         #"/home/unnikrishnan/work/va/annotator/static/res/videos/1080p_WALSH_ST_000.mp4".encode('utf-8'),
         "/home/unnikrishnan/work/va/annotator/static/res/image_list/1080p_WALSH_ST_0602_000/1080p_WALSH_ST_0602_000_00001.jpeg".encode('utf-8'),
@@ -570,14 +581,13 @@ def get_video_or_image_list(request, video_id):
         for l in image_list_json:
             file = cwd + "/annotator/" + l
             print("[[[" + file + "]]]")
-            #response = run_darknet_model(request, video_id, file, False)
+            #response = run_darknet_model(request, video_id, file, False, i)
             response = run_rcnn_model(request, video_id, file, False, i)
             i = i + 1
-            break
     else:
         print("path is " + video.filename)
         file = cwd + "/annotator/" + video.filename
-        #response = run_darknet_model(request, video_id, file, True)
+        #response = run_darknet_model(request, video_id, file, True, i)
         response = run_rcnn_model(request, video_id, file, True, 0)
     return response
         
