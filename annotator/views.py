@@ -602,3 +602,9 @@ def run_model(request, video_id):
     video.annotation = json.dumps(objects_raised)
     video.save()
     return response
+
+def eval_panel(request, video_id):
+    from django.shortcuts import render
+    label_data = Label.objects.all()
+    context = {'label_data': label_data}
+    return render(request, 'eval_panels.html', context)
