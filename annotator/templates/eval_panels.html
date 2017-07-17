@@ -13,7 +13,7 @@
 <div class="container-fluid">
 <h1>Evaluation Result</h1>
 {% for label in label_data %}
-      <label for="object-radio-{{label.name}}" class="label" style="background-color: #{{label.color}}; display: block">
+      <label for="object-radio-{{label.name}}" class="label" style="background-color: #{{label.color}};">
         {{label.name}}
         <input type="radio" name="object" id="object-radio-{{label.name}}" value="{{label.name}}" {% if forloop.first %} checked {% endif %}>
       </label>
