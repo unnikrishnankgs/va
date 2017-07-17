@@ -604,7 +604,33 @@ def run_model(request, video_id):
     return response
 
 def eval_panel(request, video_id):
+    try:
+        cuser = User.objects.get(username=request.user);
+        print("user is here ", cuser.id);
+    except User.DoesNotExist:
+        raise Http404('No user with name "{}"'.format(request.user))
+
     from django.shortcuts import render
+    video = Video.objects.get(id=video_id)
+    start_time = float(request.GET['s']) if 's' in request.GET else None
+    end_time = float(request.GET['e']) if 'e' in request.GET else None
+    video_data = json.dumps({
+        'id': video.id,
+        'location': video.url,
+        'path': video.host,
+        'is_image_sequence': True if video.image_list else False,
+        'annotated': video.annotation != '',
+        'verified': video.verified,
+        'rejected': video.rejected,
+        'start_time': start_time,
+        'end_time' : end_time
+    })
     label_data = Label.objects.all()
-    context = {'label_data': label_data}
+    context = {'label_data': label_data,
+               'video_id': video_id,
+               'video_data': video_data,
+               'image_list': json.loads(video.image_list) if video.image_list else 0,
+               'current_user' : cuser.id,
+    }
+    print(video_id)
     return render(request, 'eval_panels.html', context)
