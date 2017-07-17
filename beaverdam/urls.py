@@ -30,4 +30,5 @@ urlpatterns = [
     url(r'^accounts/', RedirectView.as_view(url='/')),
     url(r'^admin/', admin.site.urls),
     url(r'^download/(\d+)/', download_annotation, name='download_annotation'),
+    url(r'^runmodel/(\d+)/', run_model, name='run_model'),
 ]

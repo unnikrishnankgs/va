@@ -126,7 +126,7 @@ class Annotation {
         var {prevIndex, nextIndex, closestIndex} = this.getFrameAtTime(frame.time);
 
         if (frame.continueInterpolation === undefined)
-            frame.continueInterpolation = true;
+            frame.continueInterpolation = false;//mod true;
 
         // Update the closestIndex-th frame
         if (closestIndex != null) {

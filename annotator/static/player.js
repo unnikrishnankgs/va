@@ -167,6 +167,7 @@ class Player {
         // Submitting
         $('#submit-btn').click(this.submitAnnotations.bind(this));
         $('#download-btn').click(this.requestDownload.bind(this));
+        $('#run-model-btn').click(this.requestRunModel.bind(this));
 
         $('#btn-show-accept').click(this.showAcceptDialog.bind(this));
         $('#btn-show-reject').click(this.showRejectDialog.bind(this));
@@ -328,6 +329,13 @@ class Player {
         anchor.download = "";
         anchor.click();
         
+    }
+
+    requestRunModel(e) {
+        return fetch(`/runmodel/${this.videoId}/`, {
+                credentials: 'same-origin',
+            }).then((response) =>{
+            });
     }
 
     showModal(title, message) {
