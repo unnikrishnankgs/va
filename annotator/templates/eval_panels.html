@@ -33,16 +33,21 @@
   <script type="text/javascript" src="/static/views/rect.js"></script>
   <script>
   jQuery(document).ready(function() {
+  	try{
   	window.p = new Player({
         $container: $("#player1"),
-        videoSrc: window.video.location,
-        videoId: window.video.id,
-        videoStart: window.video.start_time,
-        videoEnd: window.video.end_time,
-        isImageSequence: window.video.is_image_sequence,
-        turkMetadata: window.video.turk_task,
-        current_user: window.current_user,
+        videoSrc: video_data.location,
+        videoId: video_data.id,
+        videoStart: video_data.start_time,
+        videoEnd: video_data.end_time,
+        isImageSequence: video_data.is_image_sequence,
+        turkMetadata: null,
+        current_user: current_user,
     });
+  }catch(err)
+  {
+  	alert(err.message);
+  }
   });
   </script>
   <link href="//vjs.zencdn.net/5.19/video-js.min.css" rel="stylesheet">
@@ -62,7 +67,7 @@
     <div class="panel panel-warning col-md-4">
       <div class="panel-heading">Model1</div>
       <div class="panel-body">
-      	<div class="  panel panel-default panel-space player-container" id="player1">
+      	<div class="  panel panel-default panel-space player-container" id="player1" style="width: 100%">
 	      <div class="player-screen">
 	    	{% if image_list %}
 		      <div class="player-video">
@@ -75,8 +80,8 @@
 		        {% endfor %}
 		      </div>
 		    {% else %}
-	      <div class="player-video-container">
-			<video class="player-video"></video>
+	      <div class="player-video-container" style="width: 100%">
+			<video class="player-video" style="width: 100%"></video>
 	      </div>
 	      {% endif %}
 	    <div class="player-paper"></div>
