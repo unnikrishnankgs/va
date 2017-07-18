@@ -625,12 +625,19 @@ def eval_panel(request, video_id):
         'start_time': start_time,
         'end_time' : end_time
     })
+    # eval_data = None
+    cwd = os.getcwd()
+    with open(cwd+'/annotator/eval_result.json') as data_file:
+        eval_data = json.load(data_file)
+
     label_data = Label.objects.all()
     context = {'label_data': label_data,
                'video_id': video_id,
                'video_data': video_data,
                'image_list': json.loads(video.image_list) if video.image_list else 0,
                'current_user' : cuser.id,
+               'eval_data': eval_data,
     }
+
     print(video_id)
     return render(request, 'eval_panels.html', context)
