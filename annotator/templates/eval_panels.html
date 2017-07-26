@@ -5,15 +5,203 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+ 
+  <script>
+    video_data = {{ video_data|safe }};
+    imageList = {{image_list|safe}};
+    current_user = '{{ current_user|safe }}';
+    mturk = false;
+    hitId = 0;
+    workerId = 0;
+    assignmentId = '0';
+    helpEmbedded = false;
+    eval_data = {{eval_data|safe}}
+  </script>
+  <script src="/static/vendor/randomColor/randomColor.js"></script>
+    <script src="/static/vendor/lodash/lodash.js"></script>
+  <script src="/static/vendor/raphael/raphael.min.js"></script>
+  <script src="/static/vendor/imgplay/jquery.imgplay.min.js"></script>
+  <script type="text/javascript" src="/static/views/framePlayers.js"></script>
+  <script type="text/javascript" src="/static/bounds.js"></script>
+  <script type="text/javascript" src="/static/datasources.js"></script>
+  <script type="text/javascript" src="/static/misc.js"></script>
+  <script type="text/javascript" src="/static/player.js"></script>
+  <script type="text/javascript" src="/static/annotation.js"></script>
+  <script type="text/javascript" src="/static/views/keyframebar.js"></script>
+  <script type="text/javascript" src="/static/views/player.js"></script>
+  <script type="text/javascript" src="/static/views/rect.js"></script>
+
+  <script>
+  jQuery(document).ready(function() {
+  	try{
+  	window.p = new Player({
+        $container: $("#player1"),
+        videoSrc: video_data.location,
+        videoId: video_data.id,
+        videoStart: video_data.start_time,
+        videoEnd: video_data.end_time,
+        isImageSequence: video_data.is_image_sequence,
+        turkMetadata: null,
+        current_user: current_user,
+    });
+    window.p = new Player({
+        $container: $("#player2"),
+        videoSrc: video_data.location,
+        videoId: video_data.id,
+        videoStart: video_data.start_time,
+        videoEnd: video_data.end_time,
+        isImageSequence: video_data.is_image_sequence,
+        turkMetadata: null,
+        current_user: current_user,
+    });
+    window.p = new Player({
+        $container: $("#player3"),
+        videoSrc: video_data.location,
+        videoId: video_data.id,
+        videoStart: video_data.start_time,
+        videoEnd: video_data.end_time,
+        isImageSequence: video_data.is_image_sequence,
+        turkMetadata: null,
+        current_user: current_user,
+    });
+
+    // $('.footer').css({margin-top: 100px});
+    // h = $('#player1').height()*1.5;
+    // $('.footer').css('margin-top', h);
+    $('#Model1_tp').append(eval_data[0].classes[0].tp);
+    $('#Model1_fp').append(eval_data[0].classes[0].fp);
+    $('#Model1_tn').append(eval_data[0].classes[0].tn);
+    $('#Model1_fn').append(eval_data[0].classes[0].fn);
+    $('#Model1_map').append(eval_data[0].mAP);
+  }catch(err)
+  {
+  	alert(err.message);
+  }
+  });
+  </script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+  	google.charts.load('current', {packages: ['corechart', 'line']});
+google.charts.setOnLoadCallback(drawBasic);
+
+function drawBasic() {
+	try{
+      var data = new google.visualization.DataTable();
+      data.addColumn('number', 'Recall');
+      data.addColumn('number', 'Precision');
+
+      pres = null;
+      recalls = null;
+      // if (eval_data.classes.class=='car') {
+      	pres = eval_data[0].classes[0].precision;
+      	recalls = eval_data[0].classes[0].recall;
+      // }
+      for (var i = 0 ; i <= pres.length - 1; i++) {
+      	// alert(recalls[i] +','+pres[i])
+      	data.addRow([recalls[i], pres[i]]);
+      }
+
+
+      var options = {
+      	width: 400,
+  		height: 200,
+        hAxis: {
+          title: 'Recall'
+        },
+        vAxis: {
+          title: 'Precision'
+        }
+      };
+
+      els = document.getElementsByClassName('chart');
+      for (var i = 0 ; i <= els.length - 1; i++) {
+      	var chart = new google.visualization.LineChart(els[i]);
+      	chart.draw(data, options);
+      }
+
+      }catch(err)
+      {
+      	alert(err.message)
+      }
+    }
+
+  </script>
+  <style type="text/css">
+  	.chart{
+  		 width: 100%; 
+  		 height: 100%;
+  	}
+  	.player-keyframebar-keyframe:hover:not(:active) circle {
+    fill: #C25305;
+	}
+	.player-keyframebar-keyframe-noselected {
+    top: 1.1em;
+    opacity: 0.3;
+	}
+	.player-keyframebar-keyframe-noselected:hover {
+	    opacity: 0.7;
+	}
+	.player-keyframebar-keyframe circle {
+	    stroke: #902B00;
+	    stroke-width: 7px;
+	    fill: #FF8000;
+	}
+	.player-keyframebar-keyframe {
+    /*position: absolute;*/
+    color: orange;
+    width: auto;
+    height: 1.4em;
+    top: 0;
+    margin-left: -.7em;
+	}
+	.player-rect-normal {
+    stroke: white;
+    stroke-width: 1px;
+	}
+	.player-rect-selected {
+	    stroke-opacity: 1;
+	    fill-opacity: 0.2;
+	}
+	.player-rect-noselected {
+	    stroke-opacity: 0.5;
+	    fill-opacity: 0.5;
+	}
+	.player-rect-real {
+	    stroke-dasharray: none;
+	}
+	.player-rect-noreal {
+	    stroke-dasharray: 8, 4;
+	}
+	.player-rect-noselected.player-rect-noreal.player-rect-nosinglekeyframe {
+	    display: none;
+	}
+
+	.player-rect-active {
+	    fill: black;
+	    fill-opacity: 0.3;
+	    opacity: 0.5;
+	    stroke: white;
+	    stroke-opacity: 1;
+	    stroke-width: 1px;
+	}
+	.player-rect-noactive {
+	    fill: transparent;
+	    stroke: transparent;
+	    stroke-width: 0;
+	    opacity: 0;
+	}
+
+  </style>
 </head>
 <body>
  
 <div class="container-fluid">
 <h1>Evaluation Result</h1>
 {% for label in label_data %}
-      <label for="object-radio-{{label.name}}" class="label" style="background-color: #{{label.color}}; display: block">
+      <label for="object-radio-{{label.name}}" class="label" style="background-color: #{{label.color}}; display: none;">
         {{label.name}}
         <input type="radio" name="object" id="object-radio-{{label.name}}" value="{{label.name}}" {% if forloop.first %} checked {% endif %}>
       </label>
@@ -21,14 +209,25 @@
   <div class="panel-group">
     <div class="panel panel-warning col-md-4">
       <div class="panel-heading">Model1</div>
-      <div class="panel-body">
-
+      <div class="panel-body" style="position: relative;">
+      	<div class="  panel panel-default panel-space player-container" id="player1" style="width: 100%; z-index: 1; position: absolute; top: 0px; left: 0px;">
 	      <div class="player-screen">
-	    
-	      <div class="player-video-container">
-		<video class="player-video" src="http://localhost:5000/static/res/videos/1080p_WALSH_ST_000.mp4" style="height: 100%; width: 100%;"></video>
+	    	{% if image_list %}
+		      <div class="player-video">
+		        {% for image in image_list %}
+		          {% if forloop.counter0 < 25 %}
+		            <img src="{{image_list_path}}/{{image}}" />
+		          {% else %}
+		            <img data-src="{{image_list_path}}/{{image}}" />
+		          {% endif %}
+		        {% endfor %}
+		      </div>
+		    {% else %}
+	      <div class="player-video-container" style="width: 100%">
+			<video class="player-video" style="width: 100%"></video>
 	      </div>
-	    <div class="player-paper"></div>
+	      {% endif %}
+	    <div class="player-paper" style="z-index: 2; position: absolute; top: 0px; left: 0px;"></div>
 	    <div class="player-loader">
 	      <div class="bounce1"></div>
 	      <div class="bounce2"></div>
@@ -57,27 +256,60 @@
 	      <div class="pull-right">
 		<input id="scale-checkbox" type="checkbox" />
 		<label for="scale-checkbox">Scale to fit</label>
+
 	      </div>
+
 	    </div>
 	  </div>
-	<h4>AP Graph1</h4>
-	<div class="well jumbotron">graph1</div>
+	  <div class="footer" >
+		<h4>AP/Frame</h4>
+		<div class="chart"></div>
 
-	<h4>AP Graph2</h4>
-	<div class="well jumbotron">graph2</div>
+		<h4>AP/Video</h4>
+		<div class="chart"></div>
+		<p>
+			<h4>For this frame: </h4>
+			<h5 id="Model1_tp">TP: </h5>
+			<h5 id="Model1_fp">FP: </h5>
+			<h5 id="Model1_tn">TN: </h5>
+			<h5 id="Model1_fn">FN: </h5>
+			<h5 id="Model1_map">mAP: </h5>
+		</p>
+		<p>
+			<h4>For this video: </h4>
+			<h5>TP: </h5>
+			<h5>FP: </h5>
+			<h5>TN: </h5>
+			<h5>FN: </h5>
+			<h5>mAP: </h5>
+		</p>
+		</div>
+	  </div>
+	
       </div>
     </div>
 
     <div class="panel panel-primary col-md-4">
       <div class="panel-heading">Model2</div>
-      <div class="panel-body">
-
-	<div class="player-screen">
-	    
-	      <div class="player-video-container">
-		<video class="player-video" src="http://localhost:5000/static/res/videos/1080p_WALSH_ST_000.mp4" style="height: 100%; width: 100%;"></video>
+      <div class="panel-body" style="position: relative;">
+      	<div class="  panel panel-default panel-space player-container" id="player2" style="width: 100%; z-index: 1; position: absolute; top: 0px; left: 0px;">
+	      <div class="player-screen">
+	    	{% if image_list %}
+		      <div class="player-video">
+		        {% for image in image_list %}
+		          {% if forloop.counter0 < 25 %}
+		            <img src="{{image_list_path}}/{{image}}" />
+		          {% else %}
+		            <img data-src="{{image_list_path}}/{{image}}" />
+		          {% endif %}
+		        {% endfor %}
+		      </div>
+		    {% else %}
+	      <div class="player-video-container" style="width: 100%">
+			<video class="player-video" style="width: 100%"></video>
 	      </div>
-	    <div class="player-paper"></div>
+	      {% endif %}
+	    <div class="player-paper" style="z-index: 2; position: absolute; top: 0px; left: 0px;"></div>
 	    <div class="player-loader">
 	      <div class="bounce1"></div>
 	      <div class="bounce2"></div>
@@ -106,27 +338,59 @@
 	      <div class="pull-right">
 		<input id="scale-checkbox" type="checkbox" />
 		<label for="scale-checkbox">Scale to fit</label>
+
 	      </div>
+
 	    </div>
 	  </div>
-	<h4>AP Graph1</h4>
-	<div class="well jumbotron">graph1</div>
+	  <div class="footer" >
+		<h4>AP/Frame</h4>
+		<div class="chart"></div>
 
-	<h4>AP Graph2</h4>
-	<div class="well jumbotron">graph2</div>
+		<h4>AP/Video</h4>
+		<div class="chart"></div>
+		<p>
+			<h4>For this frame: </h4>
+			<h5>TP: </h5>
+			<h5>FP: </h5>
+			<h5>TN: </h5>
+			<h5>FN: </h5>
+			<h5>mAP: </h5>
+		</p>
+		<p>
+			<h4>For this video: </h4>
+			<h5>TP: </h5>
+			<h5>FP: </h5>
+			<h5>TN: </h5>
+			<h5>FN: </h5>
+			<h5>mAP: </h5>
+		</p>
+		</div>
+	  </div>
       </div>
     </div>
 
     <div class="panel panel-success col-md-4">
       <div class="panel-heading">Model3</div>
-      <div class="panel-body">
-
-	<div class="player-screen">
-	    
-	      <div class="player-video-container">
-                <video class="player-video" src="http://localhost:5000/static/res/videos/1080p_WALSH_ST_000.mp4" style="height: 100%; width: 100%;"></video>
+      <div class="panel-body" style="position: relative;">
+      	<div class="  panel panel-default panel-space player-container" id="player3" style="width: 100%; z-index: 1; position: absolute; top: 0px; left: 0px;">
+	      <div class="player-screen">
+	    	{% if image_list %}
+		      <div class="player-video">
+		        {% for image in image_list %}
+		          {% if forloop.counter0 < 25 %}
+		            <img src="{{image_list_path}}/{{image}}" />
+		          {% else %}
+		            <img data-src="{{image_list_path}}/{{image}}" />
+		          {% endif %}
+		        {% endfor %}
+		      </div>
+		    {% else %}
+	      <div class="player-video-container" style="width: 100%">
+			<video class="player-video" style="width: 100%"></video>
 	      </div>
-	    <div class="player-paper"></div>
+	      {% endif %}
+	    <div class="player-paper" style="z-index: 2; position: absolute; top: 0px; left: 0px;"></div>
 	    <div class="player-loader">
 	      <div class="bounce1"></div>
 	      <div class="bounce2"></div>
@@ -155,16 +419,37 @@
 	      <div class="pull-right">
 		<input id="scale-checkbox" type="checkbox" />
 		<label for="scale-checkbox">Scale to fit</label>
+
 	      </div>
+
 	    </div>
 	  </div>
-	<h4>AP Graph1</h4>
-	<div class="well jumbotron">graph1</div>
+	  <div class="footer" >
+		<h4>AP/Frame</h4>
+		<div class="chart"></div>
 
-	<h4>AP Graph2</h4>
-	<div class="well jumbotron">graph2</div>
-      </div>
-    </div>
+		<h4>AP/Video</h4>
+		<div class="chart"></div>
+		<p>
+			<h4>For this frame: </h4>
+			<h5>TP: </h5>
+			<h5>FP: </h5>
+			<h5>TN: </h5>
+			<h5>FN: </h5>
+			<h5>mAP: </h5>
+		</p>
+		<p>
+			<h4>For this video: </h4>
+			<h5>TP: </h5>
+			<h5>FP: </h5>
+			<h5>TN: </h5>
+			<h5>FN: </h5>
+			<h5>mAP: </h5>
+		</p>
+		</div>
+	  </div>
+	  </div>
+	  </div>
 
   </div>
 </div>

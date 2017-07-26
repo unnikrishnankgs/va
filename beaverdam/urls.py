@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^download/(\d+)/', download_annotation, name='download_annotation'),
     url(r'^runmodel/(\d+)/', run_model, name='run_model'),
+    url(r'^evalpanel/(\d+)/', eval_panel, name='eval_panel'),
 ]
