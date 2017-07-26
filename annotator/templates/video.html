@@ -147,14 +147,15 @@ $(document).ready(function(){
         </form>
       {% else %}
       <!-- Admin View -->
+      <button id="submit-btn" type="button" class="btn btn-success" style="display: inline">Save</button>
         {% if mturk_data.last_email_sent_date != None %}
           <i>E-mail sent on {{  mturk_data.last_email_sent_date }}</i>
         {% endif %}
-        <div id="submit-btn-group" class="btn-group" role="group" style="display: none">
+        <div id="submit-btn-group" class="btn-group" role="group" style="display: none;">
           {% if request.user.is_staff == False %}
             <button id="submit-btn" type="button" class="btn btn-success">Submit</button>
           {% else %}
-            <button id="submit-btn" type="button" class="btn btn-success">Save</button>
+            <!-- <button id="submit-btn" type="button" class="btn btn-success">Save</button> -->
 
             {% if mturk_data.status == "Awaiting Approval" or mturk_data.status == "Rejected" %}
               <button id="btn-show-reject" type="button" class="btn btn-danger">Reject</button>
@@ -200,20 +201,24 @@ $(document).ready(function(){
 
   <div class="panel panel-primary bottom-controls">
     <div class="panel-heading" style="background-image: none; background-color:#484848">
-      <input class="player-control-scrubber" type="range" min="0" max="10000" value="0" step="1"/>
-      <div class="panel panel-success">
+      
+      <div class="panel panel-success" style="background-color: #e6f2ff; height: 10px;" 
+    >
         <!-- <div class="panel-heading style="background-color: #3A7734"> -->
           <div class="player-keyframebar"></div>
         <!-- </div> -->
       </div>
+      <input class="player-control-scrubber" type="range" min="0" max="10000" value="0" step="1"/>
 
       <span class="noselect">
-        <div class="glyphicon glyphicon-fast-backward player-control-goto-start" title="Go to start"></div>
-        <div class="glyphicon glyphicon-step-backward player-control-step-backward" title="One Frame Backward (shortcut - 'a')"></div>
-        <div class="glyphicon glyphicon-play player-control-play-pause" title="Play / Pause (shortcut - 'space'')"></div>
-        <div class="glyphicon glyphicon-step-forward player-control-step-forward" title="One Frame Forward (shortcut - 's')"></div>
-        <div class="glyphicon glyphicon-fast-forward player-control-goto-end"></div>
-        <div class="glyphicon glyphicon-trash player-control-delete-keyframe" title="Delete selected frame (shortcut - 'delete', 'd')"></div>
+        <div class="btn btn-default btn-lg glyphicon glyphicon-fast-backward player-control-goto-start" title="Go to start"></div>
+        <div class="btn btn-default btn-lg glyphicon glyphicon-step-backward player-control-step-backward" title="One Frame Backward (shortcut - 'a')"></div>
+        <!-- <button type="button" class="btn btn-default btn-sm" > -->
+          <div class="btn btn-default btn-lg glyphicon glyphicon-play player-control-play-pause" title="Play / Pause (shortcut - 'space'')"></div> 
+        <!-- </button> -->
+        <div class="btn btn-default btn-lg glyphicon glyphicon-step-forward player-control-step-forward" title="One Frame Forward (shortcut - 's')"></div>
+        <div class="btn btn-default btn-lg glyphicon glyphicon-fast-forward player-control-goto-end"></div>
+        <div class="btn btn-default btn-sm glyphicon glyphicon-trash player-control-delete-keyframe" title="Delete selected frame (shortcut - 'delete', 'd')"></div>
       </span>
       <input class="form-control player-control-time" id="frame-number" placeholder="0">
       <div class="pull-right">

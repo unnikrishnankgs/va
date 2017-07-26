@@ -18,11 +18,12 @@
     workerId = 0;
     assignmentId = '0';
     helpEmbedded = false;
-    eval_data = {{eval_data|safe}}
+    eval_data = {{eval_data|safe}};
+    // label_data = {{label_data|safe}};
   </script>
   <script src="/static/vendor/randomColor/randomColor.js"></script>
     <script src="/static/vendor/lodash/lodash.js"></script>
-  <script src="/static/vendor/raphael/raphael.min.js"></script>
+  
   <script src="/static/vendor/imgplay/jquery.imgplay.min.js"></script>
   <script type="text/javascript" src="/static/views/framePlayers.js"></script>
   <script type="text/javascript" src="/static/bounds.js"></script>
@@ -35,6 +36,7 @@
   <script type="text/javascript" src="/static/views/rect.js"></script>
 
   <script>
+  player2 = null;
   jQuery(document).ready(function() {
   	try{
   	window.p = new Player({
@@ -47,7 +49,7 @@
         turkMetadata: null,
         current_user: current_user,
     });
-    window.p = new Player({
+    player2 = new Player({
         $container: $("#player2"),
         videoSrc: video_data.location,
         videoId: video_data.id,
@@ -57,16 +59,16 @@
         turkMetadata: null,
         current_user: current_user,
     });
-    window.p = new Player({
-        $container: $("#player3"),
-        videoSrc: video_data.location,
-        videoId: video_data.id,
-        videoStart: video_data.start_time,
-        videoEnd: video_data.end_time,
-        isImageSequence: video_data.is_image_sequence,
-        turkMetadata: null,
-        current_user: current_user,
-    });
+    // window.p = new Player({
+    //     $container: $("#player3"),
+    //     videoSrc: video_data.location,
+    //     videoId: video_data.id,
+    //     videoStart: video_data.start_time,
+    //     videoEnd: video_data.end_time,
+    //     isImageSequence: video_data.is_image_sequence,
+    //     turkMetadata: null,
+    //     current_user: current_user,
+    // });
 
     // $('.footer').css({margin-top: 100px});
     // h = $('#player1').height()*1.5;
@@ -76,11 +78,48 @@
     $('#Model1_tn').append(eval_data[0].classes[0].tn);
     $('#Model1_fn').append(eval_data[0].classes[0].fn);
     $('#Model1_map').append(eval_data[0].mAP);
+    //clear paper2
+    // annotation = '';
+    // checkbox_list = {};
+    // alert('ss');
+    // $('.list-group-item').click(function(){
+    	// $.getJSON('/annotation/'+video_data.id+'/', function(data){
+    		// annotation = JSON.parse(data);
+    	// 	annotation = data;
+    	// 	alert(annotation.length);
+    	// });
+//loop
+	// var paper = Raphael("canvas2", '100%', '100%');
+	// {% for label in label_data %}
+ //      $('#object-radio-{{label.name}}').click(function(){
+ //      	alert("click");
+ //      	$.getJSON('/annotation/'+video_data.id+'/', function(data){
+ //    		annotation = data;
+ //    		alert(annotation.length);
+ //    	});
+ //    	$('#canvas2 rect.player-rect').hide();
+    	//draw
+    // 	checkbox_list["{{label.name.split|join:'_'}}"]=(this.checked);
+    // 	if (checkbox_list.{{label.name.split|join:'_'}}) {
+    // 		alert("join");
+    // 		alert($.param(annotation));
+    // 		for (var i = 0; i < annotation.length; i++) {
+    // 			if (annotation[i].type.includes("{{label.name}}")) {
+    // 				paper.rect(annotation[i].keyframes[0].x, annotation[i].keyframes[0].y, annotation[i].keyframes[0].w, annotation[i].keyframes[0].h);
+    // 			}
+    // 		}
+    // 	}
+    //   });
+    // {% endfor %}
+    	
+    // });
+    
   }catch(err)
   {
   	alert(err.message);
   }
   });
+
   </script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script type="text/javascript">
@@ -129,6 +168,33 @@ function drawBasic() {
     }
 
   </script>
+  <script src="/static/vendor/raphael/raphael.min.js"></script>
+  <!-- <script type="text/javascript">
+  	function clean()
+	  {
+	  	try{
+	  		alert("clean");
+		  	document.getElementsById('canvas2').style.clear = "both";
+		}
+		catch(err){
+			alert(err.message);
+		}
+	  }
+	 annotation = '';
+	 getAnnotation(){
+	 	try{
+		 	var xhttp = new XMLHttpRequest();
+		 	xhttp.onreadystatechange = function() {
+		    if (this.readyState == 4 && this.status == 200) {
+		      annotation = this.responseText;
+		    }
+		    xhttp.open("GET", "annotation/"+video_data.id, true);
+	  		xhttp.send();
+	  		alert(annotation);
+  		}catch(err)
+  		{alert(err.message);}
+	 }
+  </script> -->
   <style type="text/css">
   	.chart{
   		 width: 100%; 
@@ -200,14 +266,9 @@ function drawBasic() {
  
 <div class="container-fluid">
 <h1>Evaluation Result</h1>
-{% for label in label_data %}
-      <label for="object-radio-{{label.name}}" class="label" style="background-color: #{{label.color}}; display: none;">
-        {{label.name}}
-        <input type="radio" name="object" id="object-radio-{{label.name}}" value="{{label.name}}" {% if forloop.first %} checked {% endif %}>
-      </label>
-    {% endfor %}
+
   <div class="panel-group">
-    <div class="panel panel-warning col-md-4">
+    <div class="panel panel-warning col-sm-5">
       <div class="panel-heading">Model1</div>
       <div class="panel-body" style="position: relative;">
       	<div class="  panel panel-default panel-space player-container" id="player1" style="width: 100%; z-index: 1; position: absolute; top: 0px; left: 0px;">
@@ -244,7 +305,7 @@ function drawBasic() {
 		<!-- </div> -->
 	      </div>
 
-	      <span class="noselect">
+	      <span class="noselect" >
 		<div class="glyphicon glyphicon-fast-backward player-control-goto-start" title="Go to start"></div>
 		<div class="glyphicon glyphicon-step-backward player-control-step-backward" title="One Frame Backward (shortcut - 'a')"></div>
 		<div class="glyphicon glyphicon-play player-control-play-pause" title="Play / Pause (shortcut - 'space'')"></div>
@@ -252,10 +313,11 @@ function drawBasic() {
 		<div class="glyphicon glyphicon-fast-forward player-control-goto-end"></div>
 		<div class="glyphicon glyphicon-trash player-control-delete-keyframe" title="Delete selected frame (shortcut - 'delete', 'd')"></div>
 	      </span>
-	      <input class="form-control player-control-time" id="frame-number" placeholder="0">
-	      <div class="pull-right">
+	      <input class="form-control player-control-time" id="frame-number" placeholder="0" >
+	      
+	      <div class="pull-right"><!-- 
 		<input id="scale-checkbox" type="checkbox" />
-		<label for="scale-checkbox">Scale to fit</label>
+		<label for="scale-checkbox">Scale to fit</label> -->
 
 	      </div>
 
@@ -289,13 +351,14 @@ function drawBasic() {
       </div>
     </div>
 
-    <div class="panel panel-primary col-md-4">
+    <div class="panel panel-primary col-sm-7">
       <div class="panel-heading">Model2</div>
       <div class="panel-body" style="position: relative;">
-      	<div class="  panel panel-default panel-space player-container" id="player2" style="width: 100%; z-index: 1; position: absolute; top: 0px; left: 0px;">
+      	<div class="panel panel-default panel-space player-container" id="player2" style="width: 100%; z-index: 1; position: absolute; top: 0px; left: 0px;">
+      	<div class="col-md-9">
 	      <div class="player-screen">
 	    	{% if image_list %}
-		      <div class="player-video">
+		      <div class="player-video" style="width: 100%;">
 		        {% for image in image_list %}
 		          {% if forloop.counter0 < 25 %}
 		            <img src="{{image_list_path}}/{{image}}" />
@@ -309,7 +372,7 @@ function drawBasic() {
 			<video class="player-video" style="width: 100%"></video>
 	      </div>
 	      {% endif %}
-	    <div class="player-paper" style="z-index: 2; position: absolute; top: 0px; left: 0px;"></div>
+	    <div id="canvas2" class="player-paper" style="z-index: 2; position: absolute; top: 0px; left: 0px;"></div>
 	    <div class="player-loader">
 	      <div class="bounce1"></div>
 	      <div class="bounce2"></div>
@@ -334,10 +397,11 @@ function drawBasic() {
 		<div class="glyphicon glyphicon-fast-forward player-control-goto-end"></div>
 		<div class="glyphicon glyphicon-trash player-control-delete-keyframe" title="Delete selected frame (shortcut - 'delete', 'd')"></div>
 	      </span>
-	      <input class="form-control player-control-time" id="frame-number" placeholder="0">
-	      <div class="pull-right">
+	      <input class="form-control player-control-time" id="frame-number" placeholder="0" >
+	      
+	      <div class="pull-right"><!-- 
 		<input id="scale-checkbox" type="checkbox" />
-		<label for="scale-checkbox">Scale to fit</label>
+		<label for="scale-checkbox">Scale to fit</label> -->
 
 	      </div>
 
@@ -366,11 +430,23 @@ function drawBasic() {
 			<h5>mAP: </h5>
 		</p>
 		</div>
+		</div>
+		<div class="col-md-3">
+		<div class="list-group" style="overflow-y: scroll;">
+	  	{% for label in label_data %}
+      <a href="#" class="list-group-item" style="background-color: #{{label.color}}">
+        <span style="display: block; ">{{label.name}}</span>
+        <input type="checkbox" name="object" id="object-radio-{{label.name}}" value="{{label.name}}" {% if forloop.first %} checked {% endif %} >
+      </a>
+    {% endfor %}
+    </div>
 	  </div>
+	  </div>
+	  
       </div>
     </div>
 
-    <div class="panel panel-success col-md-4">
+    <!-- <div class="panel panel-success col-md-4">
       <div class="panel-heading">Model3</div>
       <div class="panel-body" style="position: relative;">
       	<div class="  panel panel-default panel-space player-container" id="player3" style="width: 100%; z-index: 1; position: absolute; top: 0px; left: 0px;">
@@ -402,10 +478,10 @@ function drawBasic() {
 	    <div class="panel-heading" style="background-image: none; background-color:#484848">
 	      <input class="player-control-scrubber" type="range" min="0" max="10000" value="0" step="1"/>
 	      <div class="panel panel-success">
-		<!-- <div class="panel-heading style="background-color: #3A7734"> -->
-		  <div class="player-keyframebar"></div>
-		<!-- </div> -->
-	      </div>
+		<div class="panel-heading style="background-color: #3A7734"> 
+		  <div class="player-keyframebar"></div> 
+		</div> -->
+	      <!-- </div>
 
 	      <span class="noselect">
 		<div class="glyphicon glyphicon-fast-backward player-control-goto-start" title="Go to start"></div>
@@ -449,7 +525,7 @@ function drawBasic() {
 		</div>
 	  </div>
 	  </div>
-	  </div>
+	  </div>  -->
 
   </div>
 </div>
