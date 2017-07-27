@@ -262,13 +262,13 @@ function drawBasic() {
 
   </style>
 </head>
-<body>
+<body style="background-color: #e6ffe6;">
  
 <div class="container-fluid">
 <h1>Evaluation Result</h1>
 
   <div class="panel-group">
-    <div class="panel panel-warning col-sm-5">
+    <div class="panel panel-primary col-sm-5">
       <div class="panel-heading">Model1</div>
       <div class="panel-body" style="position: relative;">
       	<div class="  panel panel-default panel-space player-container" id="player1" style="width: 100%; z-index: 1; position: absolute; top: 0px; left: 0px;">
@@ -301,7 +301,7 @@ function drawBasic() {
 	      <input class="player-control-scrubber" type="range" min="0" max="10000" value="0" step="1"/>
 	      <div class="panel panel-success">
 		<!-- <div class="panel-heading style="background-color: #3A7734"> -->
-		  <div class="player-keyframebar"></div>
+		  <div class="player-keyframebar" style="display: none;"></div>
 		<!-- </div> -->
 	      </div>
 
@@ -313,7 +313,6 @@ function drawBasic() {
 		<div class="glyphicon glyphicon-fast-forward player-control-goto-end"></div>
 		<div class="glyphicon glyphicon-trash player-control-delete-keyframe" title="Delete selected frame (shortcut - 'delete', 'd')"></div>
 	      </span>
-	      <input class="form-control player-control-time" id="frame-number" placeholder="0" >
 	      
 	      <div class="pull-right"><!-- 
 		<input id="scale-checkbox" type="checkbox" />
@@ -323,12 +322,14 @@ function drawBasic() {
 
 	    </div>
 	  </div>
-	  <div class="footer" >
+	  <div class="footer" style="background-color: #e6ffe6;">
 		<h4>AP/Frame</h4>
-		<div class="chart"></div>
+		{% load static %}
+		<img src="{% static 'img/....png' %}">
 
 		<h4>AP/Video</h4>
-		<div class="chart"></div>
+		{% load static %}
+		<img src="{% static 'img/....png' %}">
 		<p>
 			<h4>For this frame: </h4>
 			<h5 id="Model1_tp">TP: </h5>
@@ -351,11 +352,11 @@ function drawBasic() {
       </div>
     </div>
 
-    <div class="panel panel-primary col-sm-7">
+    <div class="panel panel-primary col-sm-5">
       <div class="panel-heading">Model2</div>
       <div class="panel-body" style="position: relative;">
       	<div class="panel panel-default panel-space player-container" id="player2" style="width: 100%; z-index: 1; position: absolute; top: 0px; left: 0px;">
-      	<div class="col-md-9">
+      	
 	      <div class="player-screen">
 	    	{% if image_list %}
 		      <div class="player-video" style="width: 100%;">
@@ -385,7 +386,7 @@ function drawBasic() {
 	      <input class="player-control-scrubber" type="range" min="0" max="10000" value="0" step="1"/>
 	      <div class="panel panel-success">
 		<!-- <div class="panel-heading style="background-color: #3A7734"> -->
-		  <div class="player-keyframebar"></div>
+		  <div class="player-keyframebar" style="display: none;"></div>
 		<!-- </div> -->
 	      </div>
 
@@ -397,7 +398,6 @@ function drawBasic() {
 		<div class="glyphicon glyphicon-fast-forward player-control-goto-end"></div>
 		<div class="glyphicon glyphicon-trash player-control-delete-keyframe" title="Delete selected frame (shortcut - 'delete', 'd')"></div>
 	      </span>
-	      <input class="form-control player-control-time" id="frame-number" placeholder="0" >
 	      
 	      <div class="pull-right"><!-- 
 		<input id="scale-checkbox" type="checkbox" />
@@ -407,12 +407,15 @@ function drawBasic() {
 
 	    </div>
 	  </div>
-	  <div class="footer" >
+	  <div class="footer" style="background-color: #e6ffe6;">
 		<h4>AP/Frame</h4>
-		<div class="chart"></div>
+		<!-- <div class="chart"></div> -->
+		{% load static %}
+		<img src="{% static 'img/....png' %}">
 
 		<h4>AP/Video</h4>
-		<div class="chart"></div>
+		{% load static %}
+		<img src="{% static 'img/....png' %}">
 		<p>
 			<h4>For this frame: </h4>
 			<h5>TP: </h5>
@@ -430,22 +433,21 @@ function drawBasic() {
 			<h5>mAP: </h5>
 		</p>
 		</div>
-		</div>
-		<div class="col-md-3">
+		
+	  </div>
+	  
+      </div>
+    </div>
+    <div class="col-sm-2">
 		<div class="list-group" style="overflow-y: scroll;">
 	  	{% for label in label_data %}
-      <a href="#" class="list-group-item" style="background-color: #{{label.color}}">
+      <a href="#" class="list-group-item" >
         <span style="display: block; ">{{label.name}}</span>
         <input type="checkbox" name="object" id="object-radio-{{label.name}}" value="{{label.name}}" {% if forloop.first %} checked {% endif %} >
       </a>
     {% endfor %}
     </div>
 	  </div>
-	  </div>
-	  
-      </div>
-    </div>
-
     <!-- <div class="panel panel-success col-md-4">
       <div class="panel-heading">Model3</div>
       <div class="panel-body" style="position: relative;">
