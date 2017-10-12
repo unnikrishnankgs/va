@@ -1,9 +1,21 @@
-VA (Improved Video Annotation Tool forked from BeaverDam)
+VA (Improved Video Annotation Tool)
 =========================================================
 
-Video annotation tool for deep learning training labels
+Video annotation tool for deep learning training labels.
 
 ## About
+
+This project enables users to generate Ground-Truth to train deep learning models.
+
+Features supported:
+1) Easy API Platform to load extant deep learning models.
+2) UI to trigger inference and generate the results in a JSON format for the ground-truth.
+3) human interface to correct the above ground truth collected.
+
+This way we can reduce the human effort required to manually generate the ground-truth.
+
+
+README From BeaverDam which we forked to implement automatic annotation:
 
 This tool is for drawing object bounding boxes in videos. It also includes support for Amazon Mechanical Turk. See the [paper](https://www2.eecs.berkeley.edu/Pubs/TechRpts/2016/EECS-2016-193.html).
 
